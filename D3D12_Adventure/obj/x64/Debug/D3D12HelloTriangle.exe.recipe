@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Users\SDI\Desktop\HelloTriangle\bin\x64\Debug\D3D12HelloTriangle.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>C:\Users\SDI\Desktop\HelloTriangle\shaders.hlsl</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\SDI\Desktop\HelloTriangle\bin\x64\Debug\shaders.hlsl</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>
