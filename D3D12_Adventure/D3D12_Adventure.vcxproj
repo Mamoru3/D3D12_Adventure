@@ -113,18 +113,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="D3D12_Adventure.h" />
-    <ClInclude Include="Win32Application.h" />
-    <ClInclude Include="d3dx12.h" />
-    <ClInclude Include="DXSample.h" />
-    <ClInclude Include="DXSampleHelper.h" />
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Framework\Win32Application.h" />
+    <ClInclude Include="Framework\d3dx12.h" />
+    <ClInclude Include="Framework\DXSample.h" />
+    <ClInclude Include="Framework\DXSampleHelper.h" />
+    <ClInclude Include="Framework\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D12_Adventure.cpp" />
-    <ClCompile Include="Win32Application.cpp" />
-    <ClCompile Include="DXSample.cpp" />
+    <ClCompile Include="Framework\Win32Application.cpp" />
+    <ClCompile Include="Framework\DXSample.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Framework\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>

@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "DXSample.h"
+#include "Framework/DXSample.h"
 
 using namespace DirectX;
 

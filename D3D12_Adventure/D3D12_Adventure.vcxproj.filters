@@ -4,16 +4,16 @@
     <ClCompile Include="D3D12_Adventure.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="DXSample.cpp">
+    <ClCompile Include="Framework\DXSample.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Framework\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="Win32Application.cpp">
+    <ClCompile Include="Framework\Win32Application.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -21,19 +21,19 @@
     <ClInclude Include="D3D12_Adventure.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="d3dx12.h">
+    <ClInclude Include="Framework\d3dx12.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="DXSample.h">
+    <ClInclude Include="Framework\DXSample.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="DXSampleHelper.h">
+    <ClInclude Include="Framework\DXSampleHelper.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="Framework\stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="Win32Application.h">
+    <ClInclude Include="Framework\Win32Application.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
