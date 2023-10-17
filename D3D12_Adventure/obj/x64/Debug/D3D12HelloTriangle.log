@@ -1,8 +1,0 @@
-﻿  Performing Custom Build Tools
-  stdafx.cpp
-  Win32Application.cpp
-  D3D12HelloTriangle.cpp
-  DXSample.cpp
-  Main.cpp
-  Generating Code...
-  D3D12HelloTriangle.vcxproj -> C:\Users\SDI\Desktop\HelloTriangle\bin\x64\Debug\D3D12HelloTriangle.exe

@@ -1,2 +1,0 @@
-^C:\USERS\SDI\DESKTOP\HELLOTRIANGLE\SHADERS.HLSL
-copy shaders.hlsl "bin\x64\Debug\" > NUL

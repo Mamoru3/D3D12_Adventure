@@ -1,5 +1,0 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Msbuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(513,5): warning MSB8028: The intermediate directory (obj\x64\Debug\) contains files shared from another project (D3D12HelloTriangle.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  D3D12_Adventure.cpp
-  Main.cpp
-  Generating Code...
-  D3D12_Adventure.vcxproj -> C:\Users\SDI\Desktop\D3D12_Adventure\D3D12_Adventure\bin\x64\Debug\D3D12_Adventure.exe

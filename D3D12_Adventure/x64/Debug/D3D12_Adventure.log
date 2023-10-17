@@ -1,0 +1,5 @@
+﻿  InitDirect3DApp.cpp
+C:\Users\SDI\Desktop\D3D12_Adventure\D3D12_Adventure\InitDirect3DApp.cpp(136,80): warning C4305: 'argument': truncation from 'double' to 'float'
+  MathHelper.cpp
+  Generating Code...
+  D3D12_Adventure.vcxproj -> C:\Users\SDI\Desktop\D3D12_Adventure\D3D12_Adventure\x64\Debug\D3D12_Adventure.exe
