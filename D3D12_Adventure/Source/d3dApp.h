@@ -12,6 +12,9 @@
 #include "d3dUtil.h"
 #include "GameTimer.h"
 
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_impl_dx12.h"
+#include "ImGui/imgui_impl_win32.h"
 // Link necessary d3d12 libraries.
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -61,6 +64,8 @@ protected:
     void CreateSwapChain();
 
 	void FlushCommandQueue();
+
+    void CreateImGuiHeap();
 
 	ID3D12Resource* CurrentBackBuffer()const;
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView()const;
@@ -116,6 +121,13 @@ protected:
 	UINT mRtvDescriptorSize = 0;
 	UINT mDsvDescriptorSize = 0;
 	UINT mCbvSrvUavDescriptorSize = 0;
+
+
+    //----------------------------------------IMGUI----------------------------------------------
+     static int const                    NUM_FRAMES_IN_FLIGHT = 3;
+     UINT mImGuiDescriptorSize = 0;
+     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mImGuiHeap;
+     D3D12_CPU_DESCRIPTOR_HANDLE ImGuiDescriptor()const;
 
 	// Derived class should set these in derived constructor to customize starting values.
 	std::wstring mMainWndCaption = L"d3d App";

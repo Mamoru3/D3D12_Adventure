@@ -4,7 +4,7 @@
 
 #include "d3dApp.h"
 #include <WindowsX.h>
-
+//#include <imgui.h>
 using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace DirectX;
@@ -14,6 +14,7 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
 	// before CreateWindow returns, and thus before mhMainWnd is valid.
+
 	return D3DApp::GetApp()->MsgProc(hwnd, msg, wParam, lParam);
 }
 
@@ -34,7 +35,12 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 D3DApp::~D3DApp()
 {
 	if (md3dDevice != nullptr)
+	{
 		FlushCommandQueue();
+		ImGui_ImplDX12_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+	}
 }
 
 HINSTANCE D3DApp::AppInst()const
@@ -91,8 +97,16 @@ int D3DApp::Run()
 			if (!mAppPaused)
 			{
 				CalculateFrameStats();
+
+				ImGui_ImplDX12_NewFrame();
+				ImGui_ImplWin32_NewFrame();
+				ImGui::NewFrame();
+
+				//ImGui::ShowDemoWindow(); // Show demo window! :)
 				Update(mTimer);
 				Draw(mTimer);
+
+
 			}
 			else
 			{
@@ -237,6 +251,9 @@ void D3DApp::OnResize()
 
 LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
+		return true;
 	switch (msg)
 	{
 		// WM_ACTIVATE is sent when the window is activated or deactivated.  
@@ -366,6 +383,8 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		else if ((int)wParam == VK_F2)
 			Set4xMsaaState(!m4xMsaaState);
 
+
+
 		return 0;
 	}
 
@@ -405,6 +424,13 @@ bool D3DApp::InitMainWindow()
 		MessageBox(0, L"CreateWindow Failed.", 0, 0);
 		return false;
 	}
+
+
+
+
+
+
+
 
 	ShowWindow(mhMainWnd, SW_SHOW);
 	UpdateWindow(mhMainWnd);
@@ -474,6 +500,24 @@ bool D3DApp::InitDirect3D()
 	CreateCommandObjects();
 	CreateSwapChain();
 	CreateRtvAndDsvDescriptorHeaps();
+	CreateImGuiHeap();
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplWin32_Init(mhMainWnd);
+	ImGui_ImplDX12_Init(md3dDevice.Get(), NUM_FRAMES_IN_FLIGHT, DXGI_FORMAT_R8G8B8A8_UNORM,
+		mImGuiHeap.Get(),
+		// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
+		mImGuiHeap->GetCPUDescriptorHandleForHeapStart(),
+		mImGuiHeap->GetGPUDescriptorHandleForHeapStart());
+
 
 	return true;
 }
@@ -552,8 +596,22 @@ void D3DApp::FlushCommandQueue()
 
 		// Wait until the GPU hits current fence event is fired.
 		WaitForSingleObject(eventHandle, INFINITE);
+
+	
+
 		CloseHandle(eventHandle);
 	}
+}
+
+void D3DApp::CreateImGuiHeap()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC ImGuiHeapDesc;
+	ImGuiHeapDesc.NumDescriptors = SwapChainBufferCount;
+	ImGuiHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	ImGuiHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	ImGuiHeapDesc.NodeMask = 0;
+	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
+		&ImGuiHeapDesc, IID_PPV_ARGS(mImGuiHeap.GetAddressOf())));
 }
 
 ID3D12Resource* D3DApp::CurrentBackBuffer()const
@@ -572,6 +630,14 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::CurrentBackBufferView()const
 D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::DepthStencilView()const
 {
 	return mDsvHeap->GetCPUDescriptorHandleForHeapStart();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::ImGuiDescriptor() const
+{
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+		mImGuiHeap->GetCPUDescriptorHandleForHeapStart(),
+		mCurrBackBuffer,
+		mImGuiDescriptorSize);
 }
 
 void D3DApp::CalculateFrameStats()
