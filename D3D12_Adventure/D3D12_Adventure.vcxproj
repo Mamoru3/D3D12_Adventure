@@ -148,7 +148,8 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InitDirect3DApp.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\d3dApp.cpp" />
     <ClCompile Include="Source\d3dUtil.cpp" />
     <ClCompile Include="Source\GameTimer.cpp" />
@@ -162,6 +163,7 @@
     <ClCompile Include="Source\MathHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Source\d3dApp.h" />
     <ClInclude Include="Source\d3dUtil.h" />
     <ClInclude Include="Source\GameTimer.h" />
@@ -175,6 +177,9 @@
     <ClInclude Include="Source\ImGui\imstb_truetype.h" />
     <ClInclude Include="Source\MathHelper.h" />
     <ClInclude Include="Source\UploadBuffer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="UsefulCode.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

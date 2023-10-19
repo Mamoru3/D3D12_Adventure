@@ -98,10 +98,6 @@ int D3DApp::Run()
 			{
 				CalculateFrameStats();
 
-				ImGui_ImplDX12_NewFrame();
-				ImGui_ImplWin32_NewFrame();
-				ImGui::NewFrame();
-
 				//ImGui::ShowDemoWindow(); // Show demo window! :)
 				Update(mTimer);
 				Draw(mTimer);
@@ -245,6 +241,7 @@ void D3DApp::OnResize()
 	mScreenViewport.Height = static_cast<float>(mClientHeight);
 	mScreenViewport.MinDepth = 0.0f;
 	mScreenViewport.MaxDepth = 1.0f;
+	
 
 	mScissorRect = { 0, 0, mClientWidth, mClientHeight };
 }
@@ -425,13 +422,6 @@ bool D3DApp::InitMainWindow()
 		return false;
 	}
 
-
-
-
-
-
-
-
 	ShowWindow(mhMainWnd, SW_SHOW);
 	UpdateWindow(mhMainWnd);
 
@@ -515,7 +505,7 @@ bool D3DApp::InitDirect3D()
 	ImGui_ImplDX12_Init(md3dDevice.Get(), NUM_FRAMES_IN_FLIGHT, DXGI_FORMAT_R8G8B8A8_UNORM,
 		mImGuiHeap.Get(),
 		// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
-		mImGuiHeap->GetCPUDescriptorHandleForHeapStart(),
+		ImGuiDescriptor(),
 		mImGuiHeap->GetGPUDescriptorHandleForHeapStart());
 
 
@@ -524,7 +514,6 @@ bool D3DApp::InitDirect3D()
 
 void D3DApp::CreateCommandObjects()
 {
-	//
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -607,8 +596,8 @@ void D3DApp::CreateImGuiHeap()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC ImGuiHeapDesc;
 	ImGuiHeapDesc.NumDescriptors = SwapChainBufferCount;
-	ImGuiHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	ImGuiHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	ImGuiHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	ImGuiHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ImGuiHeapDesc.NodeMask = 0;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
 		&ImGuiHeapDesc, IID_PPV_ARGS(mImGuiHeap.GetAddressOf())));
@@ -745,4 +734,7 @@ void D3DApp::LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
 
 		::OutputDebugString(text.c_str());
 	}
+
+
 }
+
