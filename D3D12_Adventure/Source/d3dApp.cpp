@@ -36,7 +36,7 @@ D3DApp::~D3DApp()
 {
 	if (md3dDevice != nullptr)
 	{
-		FlushCommandQueue();
+		mGraphicsObjects->FlushCommandQueue();
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
@@ -152,12 +152,12 @@ void D3DApp::OnResize()
 {
 	assert(md3dDevice);
 	assert(mSwapChain);
-	assert(mDirectCmdListAlloc);
+	assert(GetCommandAllocator());
 
 	// Flush before changing any resources.
-	FlushCommandQueue();
+	mGraphicsObjects->FlushCommandQueue();
 
-	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
+	ThrowIfFailed(GetCommandList()->Reset(GetCommandAllocator(), nullptr));
 
 	// Release the previous resources we will be recreating.
 	for (int i = 0; i < SwapChainBufferCount; ++i)
@@ -223,16 +223,16 @@ void D3DApp::OnResize()
 	md3dDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvDesc, DepthStencilView());
 
 	// Transition the resource from its initial state to be used as a depth buffer.
-	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+	GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 	// Execute the resize commands.
-	ThrowIfFailed(mCommandList->Close());
-	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
-	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	ThrowIfFailed(GetCommandList()->Close());
+	ID3D12CommandList* cmdsLists[] = { GetCommandList() };
+	GetCommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// Wait until resize is complete.
-	FlushCommandQueue();
+	mGraphicsObjects->FlushCommandQueue();
 
 	// Update the viewport transform to cover the client area.
 	mScreenViewport.TopLeftX = 0;
@@ -439,6 +439,8 @@ bool D3DApp::InitDirect3D()
 	}
 #endif
 
+	 mGraphicsObjects = std::make_unique<GraphicsObjects>(); // Allocate and initialize the object
+
 	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&mdxgiFactory)));
 
 	// Try to create hardware device.
@@ -459,8 +461,8 @@ bool D3DApp::InitDirect3D()
 			IID_PPV_ARGS(&md3dDevice)));
 	}
 
-	ThrowIfFailed(md3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE,
-		IID_PPV_ARGS(&mFence)));
+	mGraphicsObjects->CreateFence(md3dDevice.Get());
+
 
 	mRtvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	mDsvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
@@ -487,7 +489,7 @@ bool D3DApp::InitDirect3D()
 	LogAdapters();
 #endif
 
-	CreateCommandObjects();
+	mGraphicsObjects->CreateCommandObjects(md3dDevice.Get());
 	CreateSwapChain();
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateImGuiHeap();
@@ -500,40 +502,10 @@ bool D3DApp::InitDirect3D()
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-	// Setup Platform/Renderer backends
-	ImGui_ImplWin32_Init(mhMainWnd);
-	ImGui_ImplDX12_Init(md3dDevice.Get(), NUM_FRAMES_IN_FLIGHT, DXGI_FORMAT_R8G8B8A8_UNORM,
-		mImGuiHeap.Get(),
-		// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
-		ImGuiDescriptor(),
-		mImGuiHeap->GetGPUDescriptorHandleForHeapStart());
+	InitialiseImGui();
 
 
 	return true;
-}
-
-void D3DApp::CreateCommandObjects()
-{
-	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	ThrowIfFailed(md3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue)));
-
-	ThrowIfFailed(md3dDevice->CreateCommandAllocator(
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		IID_PPV_ARGS(mDirectCmdListAlloc.GetAddressOf())));
-
-	ThrowIfFailed(md3dDevice->CreateCommandList(
-		0,
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		mDirectCmdListAlloc.Get(), // Associated command allocator
-		nullptr,                   // Initial PipelineStateObject
-		IID_PPV_ARGS(mCommandList.GetAddressOf())));
-
-	// Start off in a closed state.  This is because the first time we refer 
-	// to the command list we will Reset it, and it needs to be closed before
-	// calling Reset.
-	mCommandList->Close();
 }
 
 void D3DApp::CreateSwapChain()
@@ -560,36 +532,10 @@ void D3DApp::CreateSwapChain()
 
 	// Note: Swap chain uses queue to perform flush.
 	ThrowIfFailed(mdxgiFactory->CreateSwapChain(
-		mCommandQueue.Get(),
+		mGraphicsObjects->mCommandQueue.Get(),
 		&sd,
 		mSwapChain.GetAddressOf()));
-}
 
-void D3DApp::FlushCommandQueue()
-{
-	// Advance the fence value to mark commands up to this fence point.
-	mCurrentFence++;
-
-	// Add an instruction to the command queue to set a new fence point.  Because we 
-	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
-	// processing all the commands prior to this Signal().
-	ThrowIfFailed(mCommandQueue->Signal(mFence.Get(), mCurrentFence));
-
-	// Wait until the GPU has completed commands up to this fence point.
-	if (mFence->GetCompletedValue() < mCurrentFence)
-	{
-		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
-
-		// Fire event when GPU hits current fence.  
-		ThrowIfFailed(mFence->SetEventOnCompletion(mCurrentFence, eventHandle));
-
-		// Wait until the GPU hits current fence event is fired.
-		WaitForSingleObject(eventHandle, INFINITE);
-
-	
-
-		CloseHandle(eventHandle);
-	}
 }
 
 void D3DApp::CreateImGuiHeap()
@@ -601,6 +547,17 @@ void D3DApp::CreateImGuiHeap()
 	ImGuiHeapDesc.NodeMask = 0;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
 		&ImGuiHeapDesc, IID_PPV_ARGS(mImGuiHeap.GetAddressOf())));
+}
+
+void D3DApp::InitialiseImGui()
+{
+	// Setup Platform/Renderer backends
+	ImGui_ImplWin32_Init(mhMainWnd);
+	ImGui_ImplDX12_Init(md3dDevice.Get(), NUM_FRAMES_IN_FLIGHT, DXGI_FORMAT_R8G8B8A8_UNORM,
+		mImGuiHeap.Get(),
+		// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
+		ImGuiDescriptor(),
+		mImGuiHeap->GetGPUDescriptorHandleForHeapStart());
 }
 
 ID3D12Resource* D3DApp::CurrentBackBuffer()const
@@ -738,3 +695,23 @@ void D3DApp::LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
 
 }
 
+
+ID3D12CommandQueue* D3DApp::GetCommandQueue()
+{
+	return mGraphicsObjects->mCommandQueue.Get();
+}
+
+ID3D12GraphicsCommandList* D3DApp::GetCommandList()
+{
+	return mGraphicsObjects->mCommandList.Get();
+}
+
+ID3D12Fence* D3DApp::GetFence()
+{
+	return mGraphicsObjects->mFence.Get();
+}
+
+ID3D12CommandAllocator* D3DApp::GetCommandAllocator()
+{
+	return mGraphicsObjects->mDirectCmdListAlloc.Get();
+}

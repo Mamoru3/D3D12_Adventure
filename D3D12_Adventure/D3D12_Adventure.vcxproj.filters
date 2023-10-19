@@ -22,9 +22,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\d3dApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -58,7 +55,13 @@
     <ClCompile Include="Source\ImGui\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Source\GraphicsObjects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -102,7 +105,10 @@
     <ClInclude Include="Source\ImGui\imstb_truetype.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Game.h">
+    <ClInclude Include="Source\Game.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GraphicsObjects.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

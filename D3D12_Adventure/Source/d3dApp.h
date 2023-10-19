@@ -8,7 +8,7 @@
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #endif
-
+#include "GraphicsObjects.h"
 #include "d3dUtil.h"
 #include "GameTimer.h"
 #include "ImGui/imgui.h"
@@ -59,10 +59,11 @@ protected:
 
 	bool InitMainWindow();
 	bool InitDirect3D();
-	void CreateCommandObjects();
     void CreateSwapChain();
-
-	void FlushCommandQueue();
+    ID3D12CommandQueue* GetCommandQueue();
+    ID3D12GraphicsCommandList* GetCommandList();
+    ID3D12Fence* GetFence();
+    ID3D12CommandAllocator* GetCommandAllocator();
 
 
 	ID3D12Resource* CurrentBackBuffer()const;
@@ -93,17 +94,10 @@ protected:
 
 	// Used to keep track of the “delta-time” and game time (§4.4).
 	GameTimer mTimer;
-	
-    Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
-    Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
-    Microsoft::WRL::ComPtr<ID3D12Device> md3dDevice;
 
-    Microsoft::WRL::ComPtr<ID3D12Fence> mFence;
-    UINT64 mCurrentFence = 0;
-	
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mDirectCmdListAlloc;
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
+    Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
+    Microsoft::WRL::ComPtr<ID3D12Device> md3dDevice;
+    Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 
 	static const int SwapChainBufferCount = 2;
 	int mCurrBackBuffer = 0;
@@ -112,6 +106,9 @@ protected:
 
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mDsvHeap;
+    std::unique_ptr<GraphicsObjects> mGraphicsObjects;
+
+
 
     D3D12_VIEWPORT mScreenViewport; 
     D3D12_RECT mScissorRect;
@@ -127,7 +124,7 @@ protected:
      Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mImGuiHeap;
      D3D12_CPU_DESCRIPTOR_HANDLE ImGuiDescriptor()const;
      void CreateImGuiHeap();
-
+     void InitialiseImGui();
 
 	// Derived class should set these in derived constructor to customize starting values.
 	std::wstring mMainWndCaption = L"d3d App";
