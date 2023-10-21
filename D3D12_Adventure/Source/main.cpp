@@ -26,6 +26,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
     try
     {
         myApp theApp(hInstance);
+
+
+
         if (!theApp.Initialize())
             return 0;
 

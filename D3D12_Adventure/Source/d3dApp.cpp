@@ -116,6 +116,17 @@ int D3DApp::Run()
 
 bool D3DApp::Initialize()
 {
+
+#if defined(DEBUG) || defined(_DEBUG) 
+	// Enable the D3D12 debug layer.
+	{
+		//CREATE CONSOLE ONLY WHEN DEBUGGING
+		AllocConsole();                // Create a new console window
+		freopen("CONOUT$", "w", stdout);  // Redirect standard output to the console
+		freopen("CONIN$", "r", stdin);    // Redirect standard input to the console
+	}
+#endif
+
 	if (!InitMainWindow())
 		return false;
 

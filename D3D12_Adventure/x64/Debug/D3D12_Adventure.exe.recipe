@@ -2,12 +2,12 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\SDI\Desktop\D3D12_Adventure\D3D12_Adventure\x64\Debug\D3D12_Adventure.exe</FullPath>
+      <FullPath>C:\Programming\Graphics\D3D12_Adventure\D3D12_Adventure\x64\Debug\D3D12_Adventure.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>C:\Users\SDI\Desktop\D3D12_Adventure\D3D12_Adventure\x64\Debug\color.cso</FullPath>
+      <FullPath>C:\Programming\Graphics\D3D12_Adventure\D3D12_Adventure\x64\Debug\color.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

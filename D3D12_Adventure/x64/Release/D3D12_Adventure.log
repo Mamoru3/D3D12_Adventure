@@ -1,0 +1,22 @@
+﻿  compilation object save succeeded; see C:\Programming\Graphics\D3D12_Adventure\D3D12_Adventure\x64\Release\color.cso
+  d3dApp.cpp
+  d3dUtil.cpp
+  Game.cpp
+C:\Programming\Graphics\D3D12_Adventure\D3D12_Adventure\Source\Game.cpp(53,80): warning C4305: 'argument': truncation from 'double' to 'float'
+  GameTimer.cpp
+  GraphicsObjects.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_dx12.cpp
+  imgui_impl_win32.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  main.cpp
+  MathHelper.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+C:\Programming\Graphics\D3D12_Adventure\D3D12_Adventure\Source\main.cpp(50): warning C4715: 'WinMain': not all control paths return a value
+  All 2473 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  D3D12_Adventure.vcxproj -> C:\Programming\Graphics\D3D12_Adventure\D3D12_Adventure\x64\Release\D3D12_Adventure.exe
